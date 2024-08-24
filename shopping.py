@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 import sys
 
 from sklearn.model_selection import train_test_split
@@ -59,7 +60,82 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    # read csv file
+    # with open("shopping.csv") as f:
+    #     reader = csv.reader(f)
+    #     next(reader)
+    #     data = []
+    #     for row in reader:
+    #         data.append({
+    #             "evidence": [cell for cell in row[:17]],
+    #             "label": 0 if row[17] == "FALSE" else 1
+    #         })
+    # evidence = [row["evidence"] for row in data]
+    # for i in range(0, 10):
+    #     print(evidence[i])
+    # labels = [row["label"] for row in data]
+
+    # return evidence, labels
+    # Map month numbers to labels
+    month_map = {
+        "Jan": 0,
+        "Feb": 1,
+        "Mar": 2,
+        "Apr": 3,
+        "May": 4,
+        "June":5,
+        "Jul": 6,
+        "Aug": 7,
+        "Sep": 8,
+        "Oct": 10,
+        "Nov": 11,
+        "Dec": 12,
+    }
+    visitor_map = {"New_Visitor": 0, "Returning_Visitor": 1}
+    # list to hold rows of csv file
+    data = []
+    # Read CSV with specified data types
+    df = pd.read_csv(
+        "shopping.csv",
+        dtype={
+            "Administrative": "Int64",
+            "Administrative_Duration": "float64",
+            "Informational": "Int64",
+            "Informational_Duration": "float64",
+            "ProductRelated": "Int64",
+            "ProductRelated_Duration": "float64",
+            "BounceRates": "float64",
+            "ExitRates": "float64",
+            "PageValues": "float64",
+            "SpecialDay": "float64",
+            "OperatingSystems": "Int64",
+            "Browser": "Int64",
+            "Region": "Int64",
+            "TrafficType": "Int64",
+            "Weekend": bool,
+            "Revenue": bool
+        },
+    )
+
+    df["Month"] = df["Month"].map(month_map)
+    df['VisitorType'] = df['VisitorType'].map(visitor_map)
+    df["Weekend"] = df["Weekend"].astype(int)
+    df["Revenue"] = df["Revenue"].astype(int)
+
+    for index, row in df.iterrows():
+        data.append(
+            {
+                "evidence": [cell for cell in row.iloc[:17]],
+                "label": row.iloc[17]
+            }
+        )
+    evidence = [row["evidence"] for row in data]
+    # for i in range(0, 10):
+    #     print(evidence[i])
+    labels = [row["label"] for row in data]
+    # for i in range(0, 10):
+    #     print(labels[i])
+    return evidence, labels
 
 
 def train_model(evidence, labels):
