@@ -117,11 +117,12 @@ def load_data(filename):
         },
     )
 
+    # map months, visitor type, weekend and revenue to corresponding values
     df["Month"] = df["Month"].map(month_map)
     df['VisitorType'] = df['VisitorType'].map(visitor_map)
     df["Weekend"] = df["Weekend"].astype(int)
     df["Revenue"] = df["Revenue"].astype(int)
-
+    # iterate over rows and put all columns except revenue in evidence and revenue in labels
     for index, row in df.iterrows():
         data.append(
             {
@@ -129,9 +130,11 @@ def load_data(filename):
                 "label": row.iloc[17]
             }
         )
+    # create a list for evidence
     evidence = [row["evidence"] for row in data]
     # for i in range(0, 10):
     #     print(evidence[i])
+    # create a list for labels
     labels = [row["label"] for row in data]
     # for i in range(0, 10):
     #     print(labels[i])
