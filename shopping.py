@@ -2,6 +2,7 @@ import csv
 import pandas as pd
 import sys
 
+from sklearn.linear_model import Perceptron
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -91,27 +92,28 @@ def load_data(filename):
         "Nov": 11,
         "Dec": 12,
     }
-    visitor_map = {"New_Visitor": 0, "Returning_Visitor": 1}
+    # Visitor column contains three categories -- new, returning and other
+    visitor_map = {"New_Visitor": 0, "Returning_Visitor": 1, "Other": 2}
     # list to hold rows of csv file
     data = []
     # Read CSV with specified data types
     df = pd.read_csv(
         "shopping.csv",
         dtype={
-            "Administrative": "Int64",
-            "Administrative_Duration": "float64",
-            "Informational": "Int64",
-            "Informational_Duration": "float64",
-            "ProductRelated": "Int64",
-            "ProductRelated_Duration": "float64",
-            "BounceRates": "float64",
-            "ExitRates": "float64",
-            "PageValues": "float64",
-            "SpecialDay": "float64",
-            "OperatingSystems": "Int64",
-            "Browser": "Int64",
-            "Region": "Int64",
-            "TrafficType": "Int64",
+            "Administrative": "int",
+            "Administrative_Duration": "float",
+            "Informational": "int",
+            "Informational_Duration": "float",
+            "ProductRelated": "int",
+            "ProductRelated_Duration": "float",
+            "BounceRates": "float",
+            "ExitRates": "float",
+            "PageValues": "float",
+            "SpecialDay": "float",
+            "OperatingSystems": "int",
+            "Browser": "int",
+            "Region": "int",
+            "TrafficType": "int",
             "Weekend": bool,
             "Revenue": bool
         },
@@ -122,6 +124,8 @@ def load_data(filename):
     df['VisitorType'] = df['VisitorType'].map(visitor_map)
     df["Weekend"] = df["Weekend"].astype(int)
     df["Revenue"] = df["Revenue"].astype(int)
+    # print(df.isna().any())
+    print(df.dtypes)
     # iterate over rows and put all columns except revenue in evidence and revenue in labels
     for index, row in df.iterrows():
         data.append(
@@ -132,10 +136,11 @@ def load_data(filename):
         )
     # create a list for evidence
     evidence = [row["evidence"] for row in data]
-    # for i in range(0, 10):
-    #     print(evidence[i])
+    for i in range(0, 10):
+        print(evidence[i])
     # create a list for labels
     labels = [row["label"] for row in data]
+
     # for i in range(0, 10):
     #     print(labels[i])
     return evidence, labels
@@ -146,8 +151,12 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
-
+    model = Perceptron()
+    # model = svm.SVC()
+    model = KNeighborsClassifier(n_neighbors=1)
+    # model = GaussianNB()
+    model.fit(evidence, labels)
+    return model
 
 def evaluate(labels, predictions):
     """
