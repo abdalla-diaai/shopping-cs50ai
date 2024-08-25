@@ -61,22 +61,6 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    # read csv file
-    # with open("shopping.csv") as f:
-    #     reader = csv.reader(f)
-    #     next(reader)
-    #     data = []
-    #     for row in reader:
-    #         data.append({
-    #             "evidence": [cell for cell in row[:17]],
-    #             "label": 0 if row[17] == "FALSE" else 1
-    #         })
-    # evidence = [row["evidence"] for row in data]
-    # for i in range(0, 10):
-    #     print(evidence[i])
-    # labels = [row["label"] for row in data]
-
-    # return evidence, labels
     # Map month numbers to labels
     month_map = {
         "Jan": 0,
@@ -124,8 +108,10 @@ def load_data(filename):
     df['VisitorType'] = df['VisitorType'].map(visitor_map)
     df["Weekend"] = df["Weekend"].astype(int)
     df["Revenue"] = df["Revenue"].astype(int)
+    # check for na values across all columns
     # print(df.isna().any())
-    print(df.dtypes)
+    # check types of columns to confirm
+    # print(df.dtypes)
     # iterate over rows and put all columns except revenue in evidence and revenue in labels
     for index, row in df.iterrows():
         data.append(
@@ -136,13 +122,8 @@ def load_data(filename):
         )
     # create a list for evidence
     evidence = [row["evidence"] for row in data]
-    for i in range(0, 10):
-        print(evidence[i])
     # create a list for labels
     labels = [row["label"] for row in data]
-
-    # for i in range(0, 10):
-    #     print(labels[i])
     return evidence, labels
 
 
@@ -173,8 +154,30 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    # total number of positives
+    correct_positive = sum(num == 1 for num in labels)
+    # total number of negatives
+    correct_negative = sum(num == 0 for num in labels)
+    sensitivity = 0
+    specificity = 0
 
+    # Create a DataFrame
+    df = pd.DataFrame({"labels": labels, "predictions": predictions})
+
+    # Iterate and compare
+    for index, row in df.iterrows():
+        # if values are similar and positive
+        if row["labels"] == 1 and row["predictions"] == 1:
+            sensitivity += 1
+        # if values are similar and negative
+        if row["labels"] == 0 and row["predictions"] == 0:
+            specificity += 1
+
+    # calculate proportion by dividing by total
+    sensitivity /= correct_positive
+    specificity /= correct_negative
+    # return tuple with both values
+    return (sensitivity, specificity)
 
 if __name__ == "__main__":
     main()
